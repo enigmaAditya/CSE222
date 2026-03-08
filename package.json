@@ -1,0 +1,33 @@
+{
+  "name": "int222",
+  "version": "1.0.0",
+  "description": "This is my first node.js project!",
+  "homepage": "https://github.com/enigmaAditya/INT222#readme",
+  "bugs": {
+    "url": "https://github.com/enigmaAditya/INT222/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enigmaAditya/INT222.git"
+  },
+  "license": "ISC",
+  "author": "Aditya",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "keywords": [],
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cookie-session": "^2.1.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "express-validator": "^7.3.1"
+  }
+}
