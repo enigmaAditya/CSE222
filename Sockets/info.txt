@@ -1,0 +1,3 @@
+socket.emit() --> will emit to onlyspecific socket like it will emit to its only client
+socket.broadcast.emit() --> will emit to all clients except its own client(self client)
+io.emit() --> will emit to all clients including its own client (no exceptions)

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Chat App</title>
+</head>
+<body>
+    <h1>Basic Chat App</h1>
+    
+    <!-- Area where messages will appear -->
+    <ul id="messages"></ul>
+    
+    <!-- Input area -->
+    <input id="inputBox" autocomplete="off" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = io();
+
+        // 1. Function to SEND a message to the server
+        function sendMessage() {
+            const input = document.getElementById("inputBox");
+            if(input.value.trim() !== "") {
+                // Emit the event to the server
+                socket.emit("chatMessage", input.value);
+                // Clear the input box so they can type the next message
+                input.value = ""; 
+            }
+        }
+
+        // 2. Listen to RECEIVE messages from the server
+        socket.on("chatMessage", (msg) => {
+            // Create a new list item <li> for the message
+            const item = document.createElement("li");
+            item.textContent = msg;
+            
+            // Add it to the <ul> on the page
+            document.getElementById("messages").appendChild(item);
+        });
+    </script>
+</body>
+</html>
