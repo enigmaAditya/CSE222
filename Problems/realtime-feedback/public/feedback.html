@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime Feedback Dashboard</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; padding: 20px; background-color: #f0f2f5; 
+            display: flex; justify-content: center; height: calc(100vh - 40px);
+        }
+        .chat-container { 
+            width: 100%; max-width: 800px; background: white; 
+            border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); 
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .header { 
+            background: #202c33; color: white; padding: 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .header h3 { margin: 0; font-weight: 500;}
+        .header button { 
+            background: #ef4444; color: white; border: none; 
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s;
+        }
+        .header button:hover { background: #dc2626; }
+        
+        .messages { 
+            padding: 20px; flex-grow: 1; overflow-y: auto; 
+            background: #efeae2; display: flex; flex-direction: column; 
+        }
+        
+        .input-area { display: flex; padding: 15px; background: #f0f2f5; }
+        .input-area input { 
+            flex-grow: 1; padding: 12px 15px; border: none; border-radius: 8px; 
+            margin-right: 10px; font-size: 15px; outline: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .input-area button { 
+            padding: 12px 25px; background: #00a884; color: white; 
+            border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s;
+        }
+        .input-area button:hover { background: #008f6f; }
+        
+        /* NEW STYLES FOR RIGHT/LEFT ALIGNMENT AND NAMES */
+        .msg-wrapper { 
+            display: flex; flex-direction: column; width: 100%; margin-bottom: 12px; 
+        }
+        .msg-wrapper.me { align-items: flex-end; }
+        .msg-wrapper.other { align-items: flex-start; }
+        
+        .msg-name { 
+            font-size: 0.8em; color: #555; margin-bottom: 4px; font-weight: bold; 
+            padding: 0 4px;
+        }
+        
+        .msg-box { 
+            background: white; padding: 10px 14px; 
+            border-radius: 8px; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); 
+            line-height: 1.4; word-wrap: break-word;
+        }
+        .msg-wrapper.me .msg-box { background: #dcf8c6; }
+        
+        .notification { 
+            align-self: center; background: rgba(0,0,0,0.05); color: #555; 
+            padding: 6px 12px; border-radius: 12px; font-size: 0.85em; margin: 10px 0; 
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <h3>💬 Live Feedback Channel</h3>
+            <form action="/logout" method="POST" style="margin:0;">
+                <button type="submit">Disconnect</button>
+            </form>
+        </div>
+        
+        <div class="messages" id="messages"></div>
+        
+        <form class="input-area" id="form" action="">
+            <input id="input" autocomplete="off" placeholder="Type your feedback message..." required />
+            <button>Send</button>
+        </form>
+    </div>
+
+    <!-- Inject the socket.io client library -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+
+        let currentUser = ""; // Will be populated by the server on connect
+
+        // Helper function to render text onto the screen
+        function appendToDOM(username, text, isNotification) {
+            if (isNotification) {
+                const item = document.createElement('div');
+                item.textContent = text;
+                item.className = 'notification';
+                messages.appendChild(item);
+            } else {
+                const wrapper = document.createElement('div');
+                // Check if the message belongs to me
+                wrapper.className = 'msg-wrapper ' + (username === currentUser ? 'me' : 'other');
+                
+                const nameBox = document.createElement('div');
+                nameBox.className = 'msg-name';
+                nameBox.textContent = username;
+
+                const textBox = document.createElement('div');
+                textBox.className = 'msg-box';
+                textBox.textContent = text;
+
+                wrapper.appendChild(nameBox);
+                wrapper.appendChild(textBox);
+                messages.appendChild(wrapper);
+            }
+            messages.scrollTop = messages.scrollHeight; // Auto-scroll to bottom
+        }
+
+        // EVENT 1: Server sends us the history from the text file
+        socket.on('load history', function(data) {
+            currentUser = data.currentUser;
+            
+            data.messages.forEach(function(msgStr) {
+                // Parse "Username: Message text here"
+                const splitIndex = msgStr.indexOf(': ');
+                if (splitIndex !== -1) {
+                    const uname = msgStr.substring(0, splitIndex);
+                    const txt = msgStr.substring(splitIndex + 2);
+                    appendToDOM(uname, txt, false);
+                }
+            });
+            // Show a visual divider so we know where live chat starts
+            appendToDOM('', '━━━ You are now live in the channel ━━━', true);
+        });
+
+        // EVENT 2: We submit the form -> send data to server
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value); 
+                input.value = ''; // clear box
+            }
+        });
+
+        // EVENT 3: Receiving live activity (messages or join/leave events)
+        socket.on('chat message', function(data) {
+            if (data.type === 'notification') {
+                appendToDOM('', data.text, true); 
+            } else {
+                // For live messages, we extract the username and text
+                const splitIndex = data.text.indexOf(': ');
+                if (splitIndex !== -1) {
+                    const uname = data.text.substring(0, splitIndex);
+                    const txt = data.text.substring(splitIndex + 2);
+                    appendToDOM(uname, txt, false);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

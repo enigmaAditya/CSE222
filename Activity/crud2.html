@@ -1,0 +1,698 @@
+<!-- crud1.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            padding: 40px 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 900;
+            margin-bottom: 50px;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0080, #ff8c00);
+        }
+
+        .section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            border: 2px solid #ff0080;
+            border-radius: 0;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #ff0080, #ff8c00);
+        }
+
+        h2 {
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ff0080;
+            margin-bottom: 24px;
+            padding-left: 12px;
+            border-left: 4px solid #ff8c00;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #333;
+            border-radius: 0;
+            font-size: 15px;
+            background: #0a0a0a;
+            color: #fff;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ff0080;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.3);
+        }
+
+        input[readonly] {
+            background: #1a1a1a;
+            color: #666;
+            border-color: #222;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 0;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff0080 0%, #ff8c00 100%);
+            color: #fff;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 20px rgba(255, 0, 128, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(255, 0, 128, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-sm {
+            padding: 10px 20px;
+            font-size: 11px;
+        }
+
+        .btn-update {
+            background: #0a0a0a;
+            color: #ff8c00;
+            border: 2px solid #ff8c00;
+        }
+
+        .btn-update:hover {
+            background: #ff8c00;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+        }
+
+        .btn-delete {
+            background: #0a0a0a;
+            color: #ff0080;
+            border: 2px solid #ff0080;
+        }
+
+        .btn-delete:hover {
+            background: #ff0080;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+            color: #000;
+            border: 2px solid #00ff41;
+            box-shadow: 0 4px 20px rgba(0, 255, 65, 0.4);
+        }
+
+        .btn-confirm:hover {
+            box-shadow: 0 6px 30px rgba(0, 255, 65, 0.6);
+        }
+
+        .btn-cancel {
+            background: #1a1a1a;
+            color: #888;
+            border: 2px solid #333;
+            margin-left: 12px;
+        }
+
+        .btn-cancel:hover {
+            border-color: #ff0080;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            border-bottom: 2px solid #ff0080;
+        }
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #ff8c00;
+            padding: 16px 12px;
+        }
+
+        td {
+            padding: 20px 12px;
+            border-bottom: 1px solid #222;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        tbody tr {
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 0, 128, 0.05);
+            transform: translateX(4px);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            padding: 40px;
+            border-radius: 0;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #ff0080;
+            box-shadow: 0 0 50px rgba(255, 0, 128, 0.5);
+            position: relative;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0080, #ff8c00);
+        }
+
+        .modal-header {
+            margin-bottom: 28px;
+        }
+
+        .modal-header h3 {
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .modal-footer {
+            margin-top: 28px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message {
+            padding: 16px 20px;
+            border-radius: 0;
+            margin-bottom: 24px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-left: 4px solid;
+        }
+
+        .message.success {
+            background: rgba(0, 255, 65, 0.1);
+            color: #00ff41;
+            border-color: #00ff41;
+        }
+
+        .message.error {
+            background: rgba(255, 0, 128, 0.1);
+            color: #ff0080;
+            border-color: #ff0080;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #444;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .warning-text {
+            color: #ff0080;
+            font-size: 13px;
+            font-weight: 700;
+            margin: 20px 0;
+            padding: 16px;
+            background: rgba(255, 0, 128, 0.1);
+            border-left: 4px solid #ff0080;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #ff0080, #ff8c00);
+            border-radius: 4px;
+        }
+
+        /* Selection */
+        ::selection {
+            background: #ff0080;
+            color: #000;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-sm {
+                width: 100%;
+            }
+
+            .section {
+                padding: 20px;
+            }
+        }
+
+        /* Glitch effect on hover for h1 */
+        h1:hover {
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                text-shadow: 2px 2px #ff0080, -2px -2px #ff8c00;
+            }
+            25% {
+                text-shadow: -2px -2px #ff0080, 2px 2px #ff8c00;
+            }
+            50% {
+                text-shadow: 2px -2px #ff0080, -2px 2px #ff8c00;
+            }
+            75% {
+                text-shadow: -2px 2px #ff0080, 2px -2px #ff8c00;
+            }
+            100% {
+                text-shadow: 2px 2px #ff0080, -2px -2px #ff8c00;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Vault</h1>
+
+        <div id="messageContainer"></div>
+
+        <!-- Add Product -->
+        <div class="section">
+            <h2>⚡ Add Product</h2>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label for="productName">Product Name</label>
+                    <input type="text" id="productName" name="name" placeholder="Enter product name" required>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Price</label>
+                    <input type="number" id="productPrice" name="price" placeholder="0.00" step="0.01" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </form>
+        </div>
+
+        <!-- Products Table -->
+        <div class="section">
+            <h2>🔥 Product Inventory</h2>
+            <div id="productsContainer">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Product</h3>
+            </div>
+            <form id="updateProductForm">
+                <input type="hidden" id="updateProductId">
+                <div class="form-group">
+                    <label for="updateProductName">Product Name</label>
+                    <input type="text" id="updateProductName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateProductPrice">Price</label>
+                    <input type="number" id="updateProductPrice" name="price" step="0.01" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeUpdateModal()">Cancel</button>
+                    <button type="submit" class="btn btn-confirm">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete Product</h3>
+            </div>
+            <form id="deleteProductForm">
+                <input type="hidden" id="deleteProductId">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="deleteProductName" name="name" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="text" id="deleteProductPrice" name="price" readonly>
+                </div>
+                <p class="warning-text">⚠ Warning: This action cannot be undone</p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', loadProducts);
+
+        // Add Product
+        document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch('/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        price: parseFloat(formData.get('price'))
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    e.target.reset();
+                    loadProducts();
+                } else {
+                    showMessage(result.message || 'Error adding product', 'error');
+                }
+            } catch (error) {
+                showMessage('Error adding product', 'error');
+            }
+        });
+
+        // Load Products
+        async function loadProducts() {
+            try {
+                const response = await fetch('/show');
+                const products = await response.json();
+                
+                const container = document.getElementById('productsContainer');
+                
+                if (products.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No Products Found</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                products.forEach(product => {
+                    tableHTML += `
+                        <tr>
+                            <td>${product.name}</td>
+                            <td>$${parseFloat(product.price).toFixed(2)}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-update" onclick='openUpdateModal(${JSON.stringify(product)})'>Update</button>
+                                    <button class="btn btn-sm btn-delete" onclick='openDeleteModal(${JSON.stringify(product)})'>Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableHTML += `</tbody></table>`;
+                container.innerHTML = tableHTML;
+            } catch (error) {
+                document.getElementById('productsContainer').innerHTML = '<div class="loading">Error loading products</div>';
+            }
+        }
+
+        // Update Modal
+        function openUpdateModal(product) {
+            document.getElementById('updateProductId').value = product._id;
+            document.getElementById('updateProductName').value = product.name;
+            document.getElementById('updateProductPrice').value = product.price;
+            document.getElementById('updateModal').classList.add('active');
+        }
+
+        function closeUpdateModal() {
+            document.getElementById('updateModal').classList.remove('active');
+        }
+
+        document.getElementById('updateProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('updateProductId').value;
+            const name = document.getElementById('updateProductName').value;
+            const price = document.getElementById('updateProductPrice').value;
+
+            try {
+                const response = await fetch('/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, name, price: parseFloat(price) })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    closeUpdateModal();
+                    loadProducts();
+                } else {
+                    showMessage(result.message || 'Error updating product', 'error');
+                }
+            } catch (error) {
+                showMessage('Error updating product', 'error');
+            }
+        });
+
+        // Delete Modal
+        function openDeleteModal(product) {
+            document.getElementById('deleteProductId').value = product._id;
+            document.getElementById('deleteProductName').value = product.name;
+            document.getElementById('deleteProductPrice').value = `$${parseFloat(product.price).toFixed(2)}`;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        document.getElementById('deleteProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('deleteProductId').value;
+
+            try {
+                const response = await fetch('/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    closeDeleteModal();
+                    loadProducts();
+                } else {
+                    showMessage(result.message || 'Error deleting product', 'error');
+                }
+            } catch (error) {
+                showMessage('Error deleting product', 'error');
+            }
+        });
+
+        // Show Message
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            container.appendChild(messageDiv);
+
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // Close modal on outside click
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
